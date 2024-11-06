@@ -6,53 +6,58 @@ pipeline TreeDataPipeline{
         -> TreeDataTableInterpreter
         -> TreeDataLoader;
 
-
+// Extract CSV data from external link
 block TreeDataExtractor oftype HttpExtractor {
 
         
         url: "https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/stadt-neuss-herbstpflanzung-2023/exports/csv";
     }
 
+// 
 block TreeDataTextFileInterpreter oftype TextFileInterpreter { }
 
-
+// Separates the data using the delimiter
 block TreeDataCSVInterpreter oftype CSVInterpreter {
         delimiter: ';';
     }
 
-
+// Drop Column E i.e baumart_deutsch
 block TreeColumnDeleter oftype ColumnDeleter {
         delete: [column E]; 
     }
-
-
+//---------------------------------------------------------------------------------------------
+// Designed to match a pattern representing two decimal numbers separated by a comma and a space
 valuetype GeoPattern oftype text {
         constraints: [
             IDGeoPattern
         ];
     }
+
 constraint IDGeoPattern oftype RegexConstraint {
         regex: /^\d{1,3}\.\d+, \d{1,3}\.\d+$/;
     }
+//---------------------------------------------------------------------------------------------
 
-valuetype StadtteilFurth oftype text {
+//---------------------------------------------------------------------------------------------
+// Designed to match a pattern representing for word starting with Vogelsang
+valuetype StadtteilVogelsang oftype text {
         constraints: [
-            FurthPrefix,
+            VogelsangPrefix,
         ];
     }
-constraint FurthPrefix oftype RegexConstraint {
+constraint VogelsangPrefix oftype RegexConstraint {
         regex: /^Vogelsang.*/;
 
     }
+//---------------------------------------------------------------------------------------------
 
-
-
+// Ensures all columns are imported and with appropriate data types
  block TreeDataTableInterpreter oftype TableInterpreter{
 
         header: true;
         columns: [
             "lfd_nr" oftype integer,
-            "stadtteil" oftype StadtteilFurth,
+            "stadtteil" oftype StadtteilVogelsang,
             // "stadtteil" oftype text,
             "standort" oftype text,
             "baumart_botanisch" oftype text,
@@ -60,20 +65,11 @@ constraint FurthPrefix oftype RegexConstraint {
             "id" oftype GeoPattern,            
             "baumfamilie" oftype text
         ];
-
-
-
  }
 
+// Loads the data into the SQLite database
  block TreeDataLoader oftype SQLiteLoader {
         table: "trees";
         file: "./trees.sqlite";
     }
-
-
-
-
-
-
-
 }
