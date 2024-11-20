@@ -1,0 +1,82 @@
+pipeline WorldBankDataPipeline {
+    
+
+// Extract Excel data from external link
+block ExcelExtractor oftype HttpExtractor {
+    url: "https://thedocs.worldbank.org/en/doc/7d852628d96b9411d43e5d36d5dff941-0050062022/original/Graphs-Chapter-5-02082022.xlsx";
+}
+
+// Interpret Excel file, select specific sheet and range
+block ExcelInterpreter oftype XLSXInterpreter {}
+
+// Block to specify the sheet to extract from the Excel file
+block ExcelSheetPicker oftype SheetPicker {
+    sheetName: "Figure S5.1.2";
+}
+
+// Block to specify the exact range within the selected sheet
+block ExcelRangePicker oftype CellRangeSelector {
+    select: range P2:S45;
+}
+
+// Block to rename header columns explicitly using CellWriter
+block ColumnRenamer oftype CellWriter {
+    at: range A1:A4;
+    write: [
+        "Country Code",           // "ISO3" -> "Country Code"
+        "Economy",                // Original column name remains unchanged
+        "GDP per Capita",         // "GDP per capita (US$, thousands)" -> "GDP per Capita"
+        "Bond Issuance Share"     // "Share of government sustainable bonds" -> "Bond Issuance Share"
+    ];
+}
+
+
+// Validate the data
+block DataValidator oftype TableInterpreter {
+    header: true;
+    columns: [
+        "Country Code" oftype CountryCodeAlpha3,
+        "Economy" oftype text,
+        "GDP per Capita" oftype text,
+        "Bond Issuance Share" oftype text
+    ];
+}
+
+
+// Load bond issuance data into SQLite
+block BondIssuanceLoader oftype SQLiteLoader {
+    table: "bondIssuance";
+    file: "country-stats.sqlite";
+}
+
+// Load GDP data into SQLite
+block GDPLoader oftype SQLiteLoader {
+    table: "gdpPerCapita";
+    file: "country-stats.sqlite";
+}
+constraint PositiveConstraint on decimal:
+        value >= 0;
+
+valuetype PostiveInteger oftype decimal {
+    constraints: [PositiveConstraint];
+}
+
+constraint DecimalConstraint on decimal:
+        value >= 1 and value <= 12;
+    
+valuetype DecimalType oftype decimal {
+    constraints:[DecimalConstraint];
+}
+
+// Define the pipeline flow
+    ExcelExtractor -> 
+    ExcelInterpreter -> 
+    ExcelSheetPicker -> 
+    ExcelRangePicker -> 
+    ColumnRenamer -> 
+    DataValidator ->
+    GDPLoader;
+
+    // DataValidator ->
+    // BondIssuanceLoader;
+}
