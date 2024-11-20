@@ -30,18 +30,37 @@ block ColumnRenamer oftype CellWriter {
     ];
 }
 
+// Delete Unneccassary columns for gdpPerCapita Table 
+block GPDTableColumnDeleter oftype ColumnDeleter {
+   delete: [column B, column D];
+ }
 
 // Validate the data
-block DataValidator oftype TableInterpreter {
-    header: true;
+block GPDTableDataValidator oftype TableInterpreter {
+    header: false;
     columns: [
         "Country Code" oftype CountryCodeAlpha3,
-        "Economy" oftype text,
-        "GDP per Capita" oftype text,
-        "Bond Issuance Share" oftype text
+        // "Economy" oftype text,
+        "GDP per Capita" oftype PostiveInteger,
+        // "Bond Issuance Share" oftype DecimalType
     ];
 }
 
+// Delete Unneccassary columns for bondIssuance Table 
+block BondTableColumnDeleter oftype ColumnDeleter {
+   delete: [column B, column C];
+ }
+
+// Validate the data
+block BondTableDataValidator oftype TableInterpreter {
+    header: false;
+    columns: [
+        "Country Code" oftype CountryCodeAlpha3,
+        // "Economy" oftype text,
+        // "GDP per Capita" oftype PostiveInteger,
+        "Bond Issuance Share" oftype DecimalType
+    ];
+}
 
 // Load bond issuance data into SQLite
 block BondIssuanceLoader oftype SQLiteLoader {
@@ -62,7 +81,7 @@ valuetype PostiveInteger oftype decimal {
 }
 
 constraint DecimalConstraint on decimal:
-        value >= 1 and value <= 12;
+        value >= 0 and value <= 1 ;
     
 valuetype DecimalType oftype decimal {
     constraints:[DecimalConstraint];
@@ -74,9 +93,12 @@ valuetype DecimalType oftype decimal {
     ExcelSheetPicker -> 
     ExcelRangePicker -> 
     ColumnRenamer -> 
-    DataValidator ->
+    GPDTableColumnDeleter ->
+    GPDTableDataValidator ->
     GDPLoader;
 
-    // DataValidator ->
-    // BondIssuanceLoader;
+    ColumnRenamer -> 
+    BondTableColumnDeleter ->
+    BondTableDataValidator ->
+    BondIssuanceLoader;
 }
