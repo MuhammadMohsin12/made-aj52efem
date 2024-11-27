@@ -21,7 +21,7 @@ The relationship between industrial growth and climate change is a critical chal
 
 ### Datasource1: Greenhouse gas emissions by sector
 * Metadata URL: https://ourworldindata.org/
-* Data URL: https://ourworldindata.org/grapher/ghg-emissions-by-sector?tab=table&time=2010..2020
+* Data URL: https://ourworldindata.org/grapher/ghg-emissions-by-sector.csv
 * Data Type: CSV Directory
 * Description: The dataset breaks down annual greenhouse gas emissions by major economic sectors globally, covering energy use, industry, agriculture, and other sectors from 2010-2020, helping understand which parts of the economy contribute most to climate change.
 
