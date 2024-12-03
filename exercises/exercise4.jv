@@ -1,0 +1,121 @@
+// Build an automated data pipeline for the following source:
+//     https://mobilithek.info/offers/526718847762190336
+//     Direct download link: https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip
+// Goal
+//     Download and unzip data
+//         Use the “data.csv” in the zip file
+//     Reshape data
+//         Only use the columns "Geraet", "Hersteller", "Model", "Monat", "Temperatur in °C (DWD)", "Batterietemperatur in °C"
+//         There can be multiple temperature measurements per row
+//             You can ignore all columns to the right of the first “​​Geraet aktiv”
+//         Translate/rename column headers from German to English:
+//             “Geraet” to “id”
+//             “Hersteller” to “producer”
+//             “Model” to “model”
+//             “Monat” to “month”
+//             “Temperatur in °C (DWD)” to “temperature”
+//             “Batterietemperatur in °C” to “battery_temperature”
+//     Transform data
+//         Transform temperatures in Celsius to Fahrenheit (formula is (TemperatureInCelsius * 9/5) + 32) in place (keep the same column names)
+//             For the columns temperature and battery_temperature
+//     Validate data
+//         Use validations as you see fit, e.g., for “Geraet” to be an id over 0
+//     Use fitting SQLite types (e.g., BIGINT, TEXT or FLOAT) for all columns
+//     Write data into a SQLite database called “temperatures.sqlite”, in the table “temperatures”
+// Use Jayvee version 0.4.0
+// Submit as  /exercises/exercise4.jv
+
+
+pipeline temperaturePipeline {
+
+    tempExtractor
+        -> tempZipInterpreter
+        -> tempFilePicker
+        -> tempTextFileInterpreter
+        -> tempCSVInterpreter
+        -> headerRename
+        -> batteryHeaderRename
+        -> tempTableInterpretor
+        -> tempToFahrenheit
+        -> batteryTempToFahrenheit
+        -> tempLoader;
+
+    block tempExtractor oftype HttpExtractor {
+		url: "https://www.mowesta.com/data/measure/mowesta-dataset-20221107.zip";
+	}
+
+    block tempZipInterpreter oftype ArchiveInterpreter {
+        archiveType: "zip";
+    }
+
+    block tempFilePicker oftype FilePicker {
+        path:'/data.csv';
+    }
+
+	// Text Interpreter
+	block tempTextFileInterpreter oftype TextFileInterpreter {}
+
+	// CSV Interpreter
+	block tempCSVInterpreter oftype CSVInterpreter {
+		delimiter: ";";
+	}
+
+    block headerRename oftype CellWriter {
+        at: range A1:E1;
+        write: ["id", "producer","model","month","temperature"];
+    }
+
+    block batteryHeaderRename oftype CellWriter {
+        at: cell J1;
+        write:["battery_temperature"];
+    }
+
+    block tempTableInterpretor oftype TableInterpreter {
+        header:true;
+        columns: [
+            "id" oftype PostiveInteger,
+            "producer" oftype text,
+            "model" oftype text,
+            "month" oftype MonthType,
+            "temperature" oftype decimal,
+            "battery_temperature" oftype decimal
+        ];
+    }
+
+    transform CtoF {
+        from Celsius oftype decimal;
+        to Fahrenheit oftype decimal;
+        Fahrenheit: (Celsius * 9/5) + 32;
+    }
+
+    block tempToFahrenheit oftype TableTransformer {
+        inputColumns: ['temperature'];
+        outputColumn: 'temperature';
+        uses: CtoF;
+    }
+
+    block batteryTempToFahrenheit oftype TableTransformer {
+        inputColumns: ['battery_temperature'];
+        outputColumn: 'battery_temperature';
+        uses: CtoF;
+    }
+
+    block tempLoader oftype SQLiteLoader {
+        table:'temperatures';
+        file:'temperatures.sqlite';
+    }
+
+    constraint PositiveConstraint on integer:
+        value >= 0;
+
+    valuetype PostiveInteger oftype integer {
+        constraints: [PositiveConstraint];
+    }
+
+    constraint MonthConstraint on integer:
+        value >= 1 and value <= 12;
+    
+    valuetype MonthType oftype integer {
+        constraints:[MonthConstraint];
+    }
+}
