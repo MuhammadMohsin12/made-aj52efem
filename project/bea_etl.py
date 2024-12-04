@@ -89,7 +89,6 @@ class DataTransformer:
             final_cols = ['Line', 'Description'] + year_cols
             
             final_df = pivoted_df[final_cols]
-            
             # Format numeric columns to one decimal place
             for year in year_cols:
                 final_df[year] = final_df[year].round(1)
