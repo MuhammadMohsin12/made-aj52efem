@@ -2,3 +2,4 @@
 /data/*
 !/data/.gitkeep
 exercises/country-stats.sqlite
+exercises/gtfs.sqlite
