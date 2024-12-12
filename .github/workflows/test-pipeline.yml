@@ -1,0 +1,41 @@
+name: Test Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Trigger on every push to the main branch
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1  # Fetch only the latest commit
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11' 
+
+      # Step 3: Verify the test.sh file exists and is executable
+      - name: Verify test.sh
+        run: |
+          echo "Checking if tests.sh file exists..."
+          if [ ! -f ./tests.sh ]; then
+            echo "Error: tests.sh not found!"
+            exit 1
+          fi
+          echo "Making tests.sh executable..."
+          chmod +x ./tests.sh
+
+      # Step 4: Run the tests.sh script
+      - name: Run tests
+        run: |
+          echo "Starting test script execution..."
+          ./tests.sh
+        shell: bash
