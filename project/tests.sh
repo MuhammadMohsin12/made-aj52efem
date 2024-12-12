@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+cd "$(dirname "$0")"
+
 echo "Step 1: Installing dependencies..."
 pip install -r ../requirements.txt || { echo "Dependency installation failed"; exit 1; }
 
