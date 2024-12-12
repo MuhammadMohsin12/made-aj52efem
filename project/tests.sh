@@ -13,4 +13,4 @@ python -m unittest ./test_emissions_etl.py || { echo "test_emissions_etl.py fail
 echo "Running test: test_file_creation.py"
 python -m unittest ./test_file_creation.py || { echo "test_file_creation.py failed"; exit 1; }
 
-echo "All tests completed successfully!"
+echo "All tests completed successfully"

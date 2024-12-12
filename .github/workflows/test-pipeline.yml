@@ -20,22 +20,22 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11' 
+          python-version: '3.10'  # Adjust based on your project requirements
 
-      # Step 3: Verify the test.sh file exists and is executable
+      # Step 3: Verify the tests.sh file exists and is executable
       - name: Verify test.sh
         run: |
-          echo "Checking if tests.sh file exists..."
-          if [ ! -f ./tests.sh ]; then
-            echo "Error: tests.sh not found!"
+          echo "Checking if project/tests.sh file exists..."
+          if [ ! -f ./project/tests.sh ]; then
+            echo "Error: project/tests.sh not found!"
             exit 1
           fi
-          echo "Making tests.sh executable..."
-          chmod +x ./tests.sh
+          echo "Making project/tests.sh executable..."
+          chmod +x ./project/tests.sh
 
       # Step 4: Run the tests.sh script
       - name: Run tests
         run: |
           echo "Starting test script execution..."
-          ./tests.sh
+          ./project/tests.sh
         shell: bash
