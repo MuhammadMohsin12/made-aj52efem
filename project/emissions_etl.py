@@ -34,6 +34,11 @@ class EmissionsDataTransformer:
             # Read the CSV data into a DataFrame
             df = pd.read_csv(StringIO(raw_data))
             
+            # Filter for the United States and years 2010-2020
+            df = df[(df['Entity'] == 'United States') & 
+                    (df['Year'] >= 2010) & 
+                    (df['Year'] <= 2020)]
+            
             # Basic data cleaning
             df['Year'] = pd.to_numeric(df['Year'], errors='coerce')
             
@@ -45,7 +50,8 @@ class EmissionsDataTransformer:
         except Exception as e:
             print(f"Error transforming data: {e}")
             return None
-
+        
+        
 class EmissionsDataLoader:
     """Responsible for loading transformed emissions data"""
     

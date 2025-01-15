@@ -34,39 +34,27 @@ class DataExtractor:
 class DataTransformer:
     """Responsible for transforming raw data into the desired format"""
     
-    def __init__(self):
-        self.industry_mapping = {
-            'GDP': ('Gross domestic product', 1),
-            'PVT': ('Private industries', 2),
-            '11': ('Agriculture, forestry, fishing, and hunting', 3),
-            '111CA': ('Farms', 4),
-            '113FF': ('Forestry, fishing, and related activities', 5),
-            '21': ('Mining', 6)
-        }
-        
-        self.indent_mapping = {
-            'GDP': '',
-            'PVT': '',
-            '11': '    ',
-            '111CA': '        ',
-            '113FF': '        ',
-            '21': '    '
-        }
-    
     def transform(self, raw_data: Dict[str, Any]) -> Tuple[pd.DataFrame, str, str]:
         """Transforms raw JSON data into a structured DataFrame"""
         try:
-            series = raw_data["BEAAPI"]["Results"][0]["Data"]
+            # Extracting data
+            results = raw_data["BEAAPI"]["Results"]
+            if isinstance(results, list):
+                series = results[0]["Data"]
+            else:
+                series = results["Data"]
             
+            # Creating DataFrame from the series
             df = pd.DataFrame(series)
             
+            # Normalize column names
             if 'IndustrYDescription' in df.columns:
                 df = df.rename(columns={'IndustrYDescription': 'IndustryDescription'})
             
+            # Convert "DataValue" column to numeric
             df["DataValue"] = pd.to_numeric(df["DataValue"], errors="coerce")
             
-            df = df[df['Industry'].isin(self.industry_mapping.keys())]
-            
+            # Pivot the data for a cleaner format
             pivoted_df = pd.pivot_table(
                 df,
                 values='DataValue',
@@ -75,24 +63,25 @@ class DataTransformer:
                 aggfunc='first'
             ).reset_index()
             
-            # Add line numbers and indentation
-            pivoted_df['Line'] = pivoted_df['Industry'].map(
-                lambda x: self.industry_mapping[x][1]
-            )
-            pivoted_df['Description'] = pivoted_df['Industry'].map(
-                lambda x: self.indent_mapping[x] + self.industry_mapping[x][0]
-            )
+            # Generate line numbers and add descriptions
+            pivoted_df['Line'] = range(1, len(pivoted_df) + 1)
+            pivoted_df['Description'] = pivoted_df['IndustryDescription']
             
+            # Sorting by line numbers
             pivoted_df = pivoted_df.sort_values('Line')
             
+            # Define the final columns to include
             year_cols = [str(year) for year in range(2010, 2021)]
             final_cols = ['Line', 'Description'] + year_cols
             
             final_df = pivoted_df[final_cols]
+            
             # Format numeric columns to one decimal place
             for year in year_cols:
-                final_df[year] = final_df[year].round(1)
+                if year in final_df.columns:
+                    final_df[year] = final_df[year].round(1)
             
+            # Title and last revised information
             title = "Value Added by Industry"
             last_revised = f"Last Revised on: {datetime.now().strftime('%B %d, %Y')}"
             

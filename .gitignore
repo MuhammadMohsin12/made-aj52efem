@@ -3,3 +3,5 @@
 !/data/.gitkeep
 exercises/country-stats.sqlite
 exercises/gtfs.sqlite
+project/filtered_emissions.csv
+project/filtered_gdp.csv
