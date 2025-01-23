@@ -1,37 +1,29 @@
-# Methods of Advanced Data Engineering Template Project
+# Analyzing the Impact of US Industrial Sectors on Climate Change and Economic Growth (2010-2020)
 
-This template project provides some structure for your open data project in the MADE module at FAU.
-This repository contains (a) a data science project that is developed by the student over the course of the semester, and (b) the exercises that are submitted over the course of the semester.
+## Main Question
+**How do different industrial sectors in the United States contribute to both economic growth and climate change, and what are the relationships between sectoral GDP contribution and their corresponding environmental impacts from 2010 to 2020?**
 
-To get started, please follow these steps:
-1. Create your own fork of this repository. Feel free to rename the repository right after creation, before you let the teaching instructors know your repository URL. **Do not rename the repository during the semester**.
+## Description
+The relationship between industrial growth and climate change is a critical challenge facing the United States, as industries are both essential drivers of economic prosperity and major contributors to greenhouse gas emissions. This project analyzes the dual impact of major US industrial sectors on economic growth and climate change, using statistical analysis of industry-specific GDP data and environmental impact data. The results provide insights into which industries offer the best balance of economic benefits versus environmental costs, aiding policymakers and business leaders in making informed decisions about industrial development and environmental regulation.
 
-## Project Work
-Your data engineering project will run alongside lectures during the semester. We will ask you to regularly submit project work as milestones, so you can reasonably pace your work. All project work submissions **must** be placed in the `project` folder.
+## Data Sources
 
-### Exporting a Jupyter Notebook
-Jupyter Notebooks can be exported using `nbconvert` (`pip install nbconvert`). For example, to export the example notebook to HTML: `jupyter nbconvert --to html examples/final-report-example.ipynb --embed-images --output final-report.html`
+### Datasource 1: Greenhouse Gas Emissions by Sector
+- **Metadata URL**: [Our World in Data](https://ourworldindata.org)  
+- **Data URL**: [Greenhouse Gas Emissions by Sector](https://ourworldindata.org/co2-and-other-greenhouse-gas-emissions)  
+- **Data Type**: CSV  
+- **Description**:  
+  The dataset breaks down annual greenhouse gas emissions by major economic sectors globally, covering energy use, industry, agriculture, and other sectors from 2010-2020. It provides insights into which parts of the economy contribute most to climate change.  
+- **Licensing and Obligation**:  
+  As cited on the website:  
+  *“Licenses: All visualizations, data, and articles produced by Our World in Data are open access under the Creative Commons BY license. You have permission to use, distribute, and reproduce these in any medium, provided the source and authors are credited.”*
 
-
-## Exercises
-During the semester you will need to complete exercises using [Jayvee](https://github.com/jvalue/jayvee). You **must** place your submission in the `exercises` folder in your repository and name them according to their number from one to five: `exercise<number from 1-5>.jv`.
-
-In regular intervals, exercises will be given as homework to complete during the semester. Details and deadlines will be discussed in the lecture, also see the [course schedule](https://made.uni1.de/).
-
-### Exercise Feedback
-We provide automated exercise feedback using a GitHub action (that is defined in `.github/workflows/exercise-feedback.yml`). 
-
-To view your exercise feedback, navigate to Actions → Exercise Feedback in your repository.
-
-The exercise feedback is executed whenever you make a change in files in the `exercise` folder and push your local changes to the repository on GitHub. To see the feedback, open the latest GitHub Action run, open the `exercise-feedback` job and `Exercise Feedback` step. You should see command line output that contains output like this:
-
-```sh
-Found exercises/exercise1.jv, executing model...
-Found output file airports.sqlite, grading...
-Grading Exercise 1
-	Overall points 17 of 17
-	---
-	By category:
-		Shape: 4 of 4
-		Types: 13 of 13
-```
+### Datasource 2: Interactive Access to Industry Economic Accounts Data
+- **Metadata URL**: [BEA](https://www.bea.gov)  
+- **Data URL**: [Industry Economic Accounts Data](https://www.bea.gov/data/industry/industry-economic-accounts-data)  
+- **Data Type**: CSV  
+- **Description**:  
+  This dataset tracks the economic performance and GDP contributions of different U.S. industries over time. It provides detailed metrics on industry value added, output, and growth rates.  
+- **Licensing and Obligation**:  
+  As cited on the website:  
+  *“BEA makes its statistics available to the public in many formats. This page provides links to BEA's major data tools and datasets.”*
